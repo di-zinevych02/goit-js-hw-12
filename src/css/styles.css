@@ -1,0 +1,15 @@
+/**
+  |============================
+  | include css partials with
+  | default @import url()
+  |============================
+*/
+/* Common styles */
+@import url('./base.css');
+@import url('./container.css');
+@import url('./reset.css');
+
+/* Sections style */
+@import url('./card.css');
+@import url('./form.css');
+@import url('./loader.css');

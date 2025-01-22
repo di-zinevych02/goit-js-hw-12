@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homework 11</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script type="module" src="./main.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <!-- Loads the specified .html file -->
+      <section class="galery-section">
+        <div class="container container-form">
+          <form class="search-form js-search-form">
+            <input
+              class="search-input js-search-input"
+              type="text"
+              name="user_query"
+              placeholder="Search images..."
+              required
+            />
+            <button class="search-btn" type="submit">Search</button>
+          </form>
+          <div class="container-gallery">
+          <span class="loader loader-hidden"></span>
+          <ul class="gallery js-gallery"></ul>
+        </div>
+        </div>
+      </section>
+    </main>
+    
+  </body>
+</html>
