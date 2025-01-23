@@ -14,8 +14,9 @@ const btnFormEl = document.querySelector('.search-btn');
 const galleryEl = document.querySelector('.js-gallery');
 const loader = document.querySelector('.loader');
 
-const onSearchFormSubmit = event => {
-  loader.style.display = 'block';
+const onSearchFormSubmit = async event => {
+  try {
+    loader.style.display = 'block';
   event.preventDefault();
 
   const searchedQuery = event.currentTarget.elements.user_query.value.trim();
@@ -30,9 +31,8 @@ const onSearchFormSubmit = event => {
     return;
   }
   
-  fetchPhotosByQuery(searchedQuery)
-    .then(data => {
-      if (data.hits.length === 0) {
+    const response = await fetchPhotosByQuery(searchedQuery);
+    if (response.data.hits.length === 0) {
         iziToast.error({
           message: 'Sorry, there are no images matching your search query. Please try again!',
           position: 'topRight',
@@ -46,7 +46,7 @@ const onSearchFormSubmit = event => {
         return;
       }
       
-      const galleryTemplate = data.hits.map(el => createGalleryCardTemplate(el)).join('');
+      const galleryTemplate = response.data.hits.map(el => createGalleryCardTemplate(el)).join('');
       
       galleryEl.innerHTML = galleryTemplate;
       
@@ -55,19 +55,19 @@ const onSearchFormSubmit = event => {
         captionDelay: 300,
       });
       lightbox.refresh();
-    })
+  
+  } catch (err) {
+    loader.style.display = 'none';
+     iziToast.error({
+      title: 'Error',
+      message: 'Something went wrong, please try again later',
+      position: 'topRight',
+     })
+  }
+  // .finally(() => {
+  //   loader.style.display = 'none';
+  // });
+ }
 
-    .catch(err => {
-      iziToast.error({
-        title: 'Error',
-        message: 'Something went wrong, please try again later',
-        position: 'topRight',
-      });
-    })
-    .finally(() => {
-
-      loader.style.display = 'none';
-    });
-}
 serchFormEl.addEventListener('submit', onSearchFormSubmit);
   

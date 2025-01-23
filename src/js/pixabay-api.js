@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 
 export const fetchPhotosByQuery = searchedQuery => {
   const searchParams = new URLSearchParams({
@@ -7,10 +9,5 @@ export const fetchPhotosByQuery = searchedQuery => {
     orientation: 'horizontal',
     safesearch: true,
   });
-  return fetch(`https://pixabay.com/api/?${searchParams}`).then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
-    return response.json();
-  });
+  return axios.get(`https://pixabay.com/api/?${searchParams}`);
 };
