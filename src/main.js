@@ -13,6 +13,9 @@ const serchFormEl = document.querySelector('.js-search-form');
 const btnFormEl = document.querySelector('.search-btn');
 const galleryEl = document.querySelector('.js-gallery');
 const loader = document.querySelector('.loader');
+const loadMoreBtnEl = document.querySelector('.load-more-btn');
+
+let page = 1;
 
 const onSearchFormSubmit = async event => {
   try {
@@ -31,7 +34,7 @@ const onSearchFormSubmit = async event => {
     return;
   }
   
-    const response = await fetchPhotosByQuery(searchedQuery);
+    const response = await fetchPhotosByQuery(searchedQuery, page);
     if (response.data.hits.length === 0) {
         iziToast.error({
           message: 'Sorry, there are no images matching your search query. Please try again!',
@@ -47,8 +50,9 @@ const onSearchFormSubmit = async event => {
       }
       
       const galleryTemplate = response.data.hits.map(el => createGalleryCardTemplate(el)).join('');
-      
-      galleryEl.innerHTML = galleryTemplate;
+    galleryEl.innerHTML = galleryTemplate;
+
+    loadMoreBtnEl.classList.remove('is-hidden');
       
       const lightbox = new SimpleLightbox('.gallery a', {
         captionsData: 'alt',
@@ -63,6 +67,7 @@ const onSearchFormSubmit = async event => {
       message: 'Something went wrong, please try again later',
       position: 'topRight',
      })
+    console.log(err);
   }
   // .finally(() => {
   //   loader.style.display = 'none';
