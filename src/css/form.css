@@ -27,7 +27,7 @@
   border: 1px solid #2e2f42;
 }
 .search-btn,
-.js-load-more {
+.load-more-btn {
   width: 91px;
   height: 40px;
   font-weight: 300;
@@ -50,12 +50,9 @@
   background-color: #6c8cff;
   color: #fff;
 }
-.js-load-more {
+.load-more-btn {
   display: block;
   margin-top: 40px;
   margin-left: auto;
   margin-right: auto;
-}
-.js-load-more.is-hidden {
-  display: none;
 }
