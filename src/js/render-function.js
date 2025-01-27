@@ -1,5 +1,7 @@
-export const createGalleryCardTemplate = imgInfo => {
-    return `
+export const createGalleryCardTemplate = hits =>
+  hits
+    .map(
+      imgInfo => `
     <li class="gallery-item">
     <a class="gallery-link" href="${imgInfo.webformatURL}">
     <img class="gallery-img"
@@ -25,5 +27,6 @@ export const createGalleryCardTemplate = imgInfo => {
   </div>
 </div>
     </a>
-    </li>`;
-};
+    </li>`
+    )
+.join('');

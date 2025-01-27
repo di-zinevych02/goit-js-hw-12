@@ -19,6 +19,7 @@ let page = 1;
 let searchedQuery = '';
 let lightbox;
 const perPage = 15;
+
 //Приховаємо індикатор завантаження
 loader.style.display = 'none';
 loadMoreBtnEl.style.display = 'none';
@@ -62,8 +63,7 @@ const onSearchFormSubmit = async event => {
       loadMoreBtnEl.addEventListener('click', onLoadMoreBtn);
     }
     
-    const galleryTemplate = data.hits.map(el => createGalleryCardTemplate(el)).join('');
-    galleryEl.innerHTML = galleryTemplate;
+    galleryEl.innerHTML = createGalleryCardTemplate(data.hits);
     // Показали користувачеві кнопку після відмалювання галереї
     loadMoreBtnEl.style.display = 'block';
   
@@ -94,21 +94,28 @@ const onLoadMoreBtn = async event => {
   try {
     const {data} = await fetchPhotosByQuery(searchedQuery, page);
     loader.style.display = 'none';
-    const galleryTemplate = data.hits.map(el => createGalleryCardTemplate(el)).join('');
     //Додаємо після відмальованої картки наступну
-    galleryEl.insertAdjacentHTML('beforeend', galleryTemplate);
+    galleryEl.insertAdjacentHTML('beforeend', createGalleryCardTemplate(data.hits));
     lightbox.refresh();
     //Якщо кількість карток буде більше або дорівнює загальної кількості карток на сервері то кнопку приховали 
     if (page * perPage >= data.totalHits) {
-      
+      loadMoreBtnEl.disabled = true;
+      loadMoreBtnEl.style.display = 'none';
       iziToast.info({
         message: `Were sorry, but you've reached the end of search results.`,
         position: 'topRight',
       });
-      loadMoreBtnEl.style.display = 'none';
-    } 
-      
+    }
+    const cardHeight = document
+      .querySelector('.gallery-item');
+    const cardScroll =
+      cardHeight.getBoundingClientRect().height;
+    window.scrollBy({
+      top: cardScroll * 2,
+      behavior: 'smooth',
+    });
   } catch (error) {
+    loadMoreBtnEl.style.display = 'none';
     iziToast.error({
       title: 'Error',
       position: 'topRight',
@@ -116,3 +123,4 @@ const onLoadMoreBtn = async event => {
     });
   }
 };
+
