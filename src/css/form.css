@@ -67,3 +67,7 @@
     letter-spacing: 0.04em;
     color: #fff;
 }
+.load-more-btn.is-hidden {
+display: none;
+}
+

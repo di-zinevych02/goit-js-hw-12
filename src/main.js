@@ -20,16 +20,15 @@ let searchedQuery = '';
 let lightbox;
 const perPage = 15;
 
-//Приховаємо індикатор завантаження
-loader.style.display = 'none';
-loadMoreBtnEl.style.display = 'none';
+loadMoreBtnEl.classList.add('is-hidden');
+loader.classList.add('loader-hidden');
 
 const onSearchFormSubmit = async event => {
-  loader.style.display = 'block';
   event.preventDefault();
-    searchedQuery = event.currentTarget.elements.user_query.value.trim();
-    if (searchedQuery === "") {
-      loader.style.display = 'none';
+    
+  searchedQuery = event.currentTarget.elements.user_query.value.trim();
+    
+  if (searchedQuery === "") {
       iziToast.warning({
         message: 'Please enter a search term.',
         position: 'topRight',
@@ -38,41 +37,53 @@ const onSearchFormSubmit = async event => {
       return;
     }
     //Щоб потім новий запит при сабміті пішов за першою групою
-    page = 1;
-    //Приховуємо кнопку 
-  loadMoreBtnEl.style.display = 'none';
+  page = 1;
   
+    //Приховуємо кнопку 
+  loadMoreBtnEl.classList.add('is-hidden');
+
+  // Очищаємо галерею перед новим запитом
+  galleryEl.innerHTML = '';
+// Додаємо лоадер
+  loader.classList.remove('loader-hidden');
+
     try {
-  const { data } = await fetchPhotosByQuery(searchedQuery, page);
+      const { data } = await fetchPhotosByQuery(searchedQuery, page);
+      loader.classList.add('loader-hidden');
+
     if (data.hits.length === 0) {
       iziToast.error({
         message: 'Sorry, there are no images matching your search query. Please try again!',
         position: 'topRight',
       });
-      // Очищаємо галерею перед новим запитом
-      galleryEl.innerHTML = '';
-
+      
       //  Очищаємо інпут через форму при умові, якщо повернеться порожній масив 
       serchFormEl.reset();
 
       return;
     }
+      galleryEl.innerHTML = createGalleryCardTemplate(data.hits);
     //Якщо при запиті зображень більше однієї групи то кнопка буде відображатись і прослуховуватиметься подія
     if (data.totalHits > 1) {
-      loadMoreBtnEl.style.display = 'block';
+      loadMoreBtnEl.classList.remove('is-hidden');
       loadMoreBtnEl.addEventListener('click', onLoadMoreBtn);
     }
+    //Якщо кількість карток буде більше або дорівнює загальної кількості карток на сервері то кнопку приховали 
+    if (page * perPage >= data.total) {
+      loadMoreBtnEl.classList.add('is-hidden');
+      loadMoreBtnEl.removeEventListener('click', onLoadMoreBtn);
+      iziToast.info({
+        message: `Were sorry, but you've reached the end of search results.`,
+        position: 'topRight',
+      });
+    }
     
-    galleryEl.innerHTML = createGalleryCardTemplate(data.hits);
-    // Показали користувачеві кнопку після відмалювання галереї
-    loadMoreBtnEl.style.display = 'block';
-  
     lightbox = new SimpleLightbox('.gallery a', {
       captionsData: 'alt',
       captionDelay: 300,
     });
+      // Оновлюємо SimpleLightbox
     lightbox.refresh();
-  
   } catch (err) {
     iziToast.error({
       title: 'Error',
@@ -81,31 +92,21 @@ const onSearchFormSubmit = async event => {
     }) 
     console.log(err);
   } finally {
-    loader.style.display = 'none';
+    loader.classList.add('loader-hidden');
   }
 }
-
 
 serchFormEl.addEventListener('submit', onSearchFormSubmit);
 
 const onLoadMoreBtn = async event => {
-  loader.style.display = 'block';
+  loader.classList.remove('loader-hidden');
   page++;
   try {
     const {data} = await fetchPhotosByQuery(searchedQuery, page);
-    loader.style.display = 'none';
     //Додаємо після відмальованої картки наступну
     galleryEl.insertAdjacentHTML('beforeend', createGalleryCardTemplate(data.hits));
     lightbox.refresh();
-    //Якщо кількість карток буде більше або дорівнює загальної кількості карток на сервері то кнопку приховали 
-    if (page * perPage >= data.totalHits) {
-      loadMoreBtnEl.disabled = true;
-      loadMoreBtnEl.style.display = 'none';
-      iziToast.info({
-        message: `Were sorry, but you've reached the end of search results.`,
-        position: 'topRight',
-      });
-    }
+
     const cardHeight = document
       .querySelector('.gallery-item');
     const cardScroll =
@@ -115,12 +116,14 @@ const onLoadMoreBtn = async event => {
       behavior: 'smooth',
     });
   } catch (error) {
-    loadMoreBtnEl.style.display = 'none';
+    loadMoreBtnEl.classList.add('is-hidden');
     iziToast.error({
       title: 'Error',
       position: 'topRight',
       message: 'Failed to load images. Please try again later.',
     });
+  } finally {
+    loader.classList.add('loader-hidden');
   }
 };
 
