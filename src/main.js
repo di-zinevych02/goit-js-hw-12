@@ -17,7 +17,10 @@ const loadMoreBtnEl = document.querySelector('.load-more-btn');
 
 let page = 1;
 let searchedQuery = '';
-let lightbox;
+let lightbox = new SimpleLightbox('.gallery a', {
+      captionsData: 'alt',
+      captionDelay: 300,
+    });;
 const perPage = 15;
 
 loadMoreBtnEl.classList.add('is-hidden');
@@ -62,14 +65,15 @@ const onSearchFormSubmit = async event => {
 
       return;
     }
-      galleryEl.innerHTML = createGalleryCardTemplate(data.hits);
+      
     //Якщо при запиті зображень більше однієї групи то кнопка буде відображатись і прослуховуватиметься подія
     if (data.totalHits > 1) {
       loadMoreBtnEl.classList.remove('is-hidden');
       loadMoreBtnEl.addEventListener('click', onLoadMoreBtn);
     }
+      galleryEl.innerHTML = createGalleryCardTemplate(data.hits);
     //Якщо кількість карток буде більше або дорівнює загальної кількості карток на сервері то кнопку приховали 
-    if (page * perPage >= data.total) {
+    if (page * perPage >= data.totalHits) {
       loadMoreBtnEl.classList.add('is-hidden');
       loadMoreBtnEl.removeEventListener('click', onLoadMoreBtn);
       iziToast.info({
@@ -77,11 +81,6 @@ const onSearchFormSubmit = async event => {
         position: 'topRight',
       });
     }
-    
-    lightbox = new SimpleLightbox('.gallery a', {
-      captionsData: 'alt',
-      captionDelay: 300,
-    });
       // Оновлюємо SimpleLightbox
     lightbox.refresh();
   } catch (err) {
@@ -105,8 +104,16 @@ const onLoadMoreBtn = async event => {
     const {data} = await fetchPhotosByQuery(searchedQuery, page);
     //Додаємо після відмальованої картки наступну
     galleryEl.insertAdjacentHTML('beforeend', createGalleryCardTemplate(data.hits));
+    // Оновлюємо SimpleLightbox
     lightbox.refresh();
-
+      if (page * perPage >= data.totalHits) {
+      loadMoreBtnEl.classList.add('is-hidden');
+      loadMoreBtnEl.removeEventListener('click', onLoadMoreBtn);
+      iziToast.info({
+        message: `Were sorry, but you've reached the end of search results.`,
+        position: 'topRight',
+      });
+    }
     const cardHeight = document
       .querySelector('.gallery-item');
     const cardScroll =
@@ -121,7 +128,8 @@ const onLoadMoreBtn = async event => {
       title: 'Error',
       position: 'topRight',
       message: 'Failed to load images. Please try again later.',
-    });
+    })
+    console.log(error.message);
   } finally {
     loader.classList.add('loader-hidden');
   }
